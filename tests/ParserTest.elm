@@ -813,34 +813,20 @@ expr =
                   , "[ 1,  2  , 3 ]"
                   , Just (List [ Literal (Int 1), Literal (Int 2), Literal (Int 3) ])
                   )
+                , ( "list concat"
+                  , "[] ++ []"
+                  , Just (ListConcat (List []) (List []))
+                  )
+                , ( "list concat did not mess up the simple addition"
+                  , "1 + 2"
+                  , Just (Plus (Literal <| Int 1) (Literal <| Int 2))
+                  )
                 ]
               )
             , ( "unit"
               , [ ( "simple case"
                   , "()"
                   , Just Unit
-                  )
-                ]
-              )
-            , ( "tuple"
-              , [ ( "without spaces"
-                  , "(1,1)"
-                  , Just (Tuple (Literal (Int 1)) (Literal (Int 1)))
-                  )
-                , ( "with inner spaces"
-                  , "( 1 , 1 )"
-                  , Just (Tuple (Literal (Int 1)) (Literal (Int 1)))
-                  )
-                ]
-              )
-            , ( "tuple3"
-              , [ ( "without spaces"
-                  , "(1,2,3)"
-                  , Just (Tuple3 (Literal (Int 1)) (Literal (Int 2)) (Literal (Int 2)))
-                  )
-                , ( "with inner spaces"
-                  , "( 1 , 2 , 3 )"
-                  , Just (Tuple3 (Literal (Int 1)) (Literal (Int 2)) (Literal (Int 2)))
                   )
                 ]
               )

@@ -37,22 +37,12 @@ javascript =
             typedInt : Int -> Typed.Expr
             typedInt int =
                 typed (Literal (Int int))
-
-            typedString : String -> Typed.Expr
-            typedString str =
-                typed (Literal (String str))
-
-            typedBool : Bool -> Typed.Expr
-            typedBool bool =
-                typed (Literal (Bool bool))
           in
-          describe "emitExpr"
+          describe "emitExpr_"
             [ describe "Int"
                 (List.map runTest
                     [ ( "positive int", Literal (Int 42), "42" )
                     , ( "negative int", Literal (Int -998), "-998" )
-                    , -- Elm wat
-                      ( "negative zero int", Literal (Int (negate 0)), "0" )
                     ]
                 )
 
@@ -62,8 +52,7 @@ javascript =
                     [ ( "positive float", Literal (Float 12.3), "12.3" )
                     , ( "negative float", Literal (Float -12.3), "-12.3" )
                     , ( "positive zero float", Literal (Float 0.0), "0" )
-                    , -- Elm wat
-                      ( "negative zero float", Literal (Float -0.0), "0" )
+                    , ( "negative zero float", Literal (Float -0.0), "0" )
                     , ( "positive infitiny", Literal (Float (1 / 0.0)), "Infinity" )
                     , ( "negative infitiny", Literal (Float (1 / -0.0)), "-Infinity" )
                     ]
@@ -102,6 +91,11 @@ javascript =
                     -- We need to give the child `Expr`s a type too
                     [ ( "simple", Plus (typedInt 1) (typedInt 2), "(1 + 2)" )
                     , ( "nested", Plus (typedInt 1) (typed (Plus (typedInt 2) (typedInt 3))), "(1 + (2 + 3))" )
+                    ]
+                )
+            , describe "ListConcat"
+                (List.map runTest
+                    [ ( "simple", ListConcat ( List [], Type.List Type.Int ) ( List [], Type.List Type.Int ), "([] ++ [])" )
                     ]
                 )
             , describe "Lambda"
@@ -230,23 +224,6 @@ javascript =
                             , body = typedInt 1
                             }
                       , "((() => {const x = 2; const y = 3; return 1;})())"
-                      )
-                    ]
-                )
-            , describe "Tuple"
-                (List.map runTest
-                    [ ( "simple tuple", Tuple (typedInt 1) (typedInt 2), "[1,2]" )
-                    , ( "mixed tuple", Tuple (typedInt 1) (typedString "hello"), "[1,\"hello\"]" )
-                    , ( "nested tuple", Tuple (typedInt 1) (typed (Tuple (typedInt 2) (typedInt 3))), "[1,[2,3]]" )
-                    ]
-                )
-            , describe "Tuple3"
-                (List.map runTest
-                    [ ( "simple tuple3", Tuple3 (typedInt 1) (typedInt 2) (typedInt 3), "[1,2,3]" )
-                    , ( "mixed tuple3", Tuple3 (typedInt 1) (typedString "hello") (typedBool True), "[1,\"hello\",true]" )
-                    , ( "nested tuple3"
-                      , Tuple3 (typedInt 1) (typedInt 2) (typed (Tuple3 (typedInt 3) (typedInt 4) (typedInt 5)))
-                      , "[1,2,[3,4,5]]"
                       )
                     ]
                 )

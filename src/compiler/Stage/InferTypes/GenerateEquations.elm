@@ -104,6 +104,36 @@ generateEquations idSource ( expr, type_ ) =
             , idSource2
             )
 
+        Typed.ListConcat left right ->
+            let
+                ( _, leftType ) =
+                    left
+
+                ( _, rightType ) =
+                    right
+
+                ( listParamId, idSource1 ) =
+                    IdSource.increment idSource
+
+                listParamType =
+                    Type.Var listParamId
+
+                ( leftEquations, idSource2 ) =
+                    generateEquations idSource1 left
+
+                ( rightEquations, idSource3 ) =
+                    generateEquations idSource2 right
+            in
+            ( -- for expression `a ++ b`
+              [ equals leftType (Type.List listParamType) -- type of `a` is List x
+              , equals rightType (Type.List listParamType) -- type of `b` is List x
+              , equals type_ (Type.List listParamType) -- type of `a ++ b` is List x
+              ]
+                ++ leftEquations
+                ++ rightEquations
+            , idSource3
+            )
+
         Typed.Lambda { body, argument } ->
             let
                 ( _, bodyType ) =
@@ -247,53 +277,6 @@ generateEquations idSource ( expr, type_ ) =
               equals type_ (Type.List listParamType)
                 :: bodyEquations
             , idSource2
-            )
-
-        Typed.Tuple fst snd ->
-            let
-                ( _, fstType ) =
-                    fst
-
-                ( _, sndType ) =
-                    snd
-
-                ( fstEquations, idSource1 ) =
-                    generateEquations idSource fst
-
-                ( sndEquations, idSource2 ) =
-                    generateEquations idSource1 snd
-            in
-            ( equals type_ (Type.Tuple fstType sndType)
-                :: fstEquations
-                ++ sndEquations
-            , idSource2
-            )
-
-        Typed.Tuple3 fst snd trd ->
-            let
-                ( _, fstType ) =
-                    fst
-
-                ( _, sndType ) =
-                    snd
-
-                ( _, trdType ) =
-                    trd
-
-                ( fstEquations, idSource1 ) =
-                    generateEquations idSource fst
-
-                ( sndEquations, idSource2 ) =
-                    generateEquations idSource1 snd
-
-                ( trdEquations, idSource3 ) =
-                    generateEquations idSource2 trd
-            in
-            ( equals type_ (Type.Tuple3 fstType sndType trdType)
-                :: fstEquations
-                ++ sndEquations
-                ++ trdEquations
-            , idSource3
             )
 
 

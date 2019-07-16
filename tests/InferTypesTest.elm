@@ -41,7 +41,7 @@ typeInference =
                   , Canonical.List [ Canonical.Literal (Int 1), Canonical.Literal (Int 2), Canonical.Literal (Int 3) ]
                   , Ok ( Typed.List [ ( Typed.Literal (Int 1), Type.Int ), ( Typed.Literal (Int 2), Type.Int ), ( Typed.Literal (Int 3), Type.Int ) ], Type.List Type.Int )
                   )
-                , ( "different types"
+                , ( "differrunSectionrunSectionent types"
                   , Canonical.List [ Canonical.Literal (Int 1), Canonical.Literal (String "two") ]
                   , Err (Error.TypeMismatch Type.Int Type.String)
                   )
@@ -57,59 +57,17 @@ typeInference =
                   , Canonical.List [ Canonical.List [ Canonical.Literal (Int 1) ], Canonical.List [ Canonical.Literal (Bool False) ] ]
                   , Err (Error.TypeMismatch Type.Int Type.Bool)
                   )
-                ]
-              )
-            , ( "tuple"
-              , [ ( "items with the same types"
-                  , Canonical.Tuple
-                        (Canonical.Literal (String "Hello"))
-                        (Canonical.Literal (String "Elm"))
-                  , Ok
-                        ( Typed.Tuple
-                            ( Typed.Literal (String "Hello"), Type.String )
-                            ( Typed.Literal (String "Elm"), Type.String )
-                        , Type.Tuple Type.String Type.String
-                        )
+                , ( "List Concat"
+                  , Canonical.ListConcat (Canonical.List []) (Canonical.List [ Canonical.Literal (Bool True) ])
+                  , Ok ( Typed.ListConcat ( Typed.List [], Type.List <| Type.Bool ) ( Typed.List [ ( Typed.Literal (Bool True), Type.Bool ) ], Type.List <| Type.Bool ), Type.List <| Type.Bool )
                   )
-                , ( "items of different types"
-                  , Canonical.Tuple
-                        (Canonical.Literal (Bool True))
-                        (Canonical.Literal (Int 1))
-                  , Ok
-                        ( Typed.Tuple
-                            ( Typed.Literal (Bool True), Type.Bool )
-                            ( Typed.Literal (Int 1), Type.Int )
-                        , Type.Tuple Type.Bool Type.Int
-                        )
+                , ( "List Concat for list of int and int"
+                  , Canonical.ListConcat (Canonical.List [ Canonical.Literal (Int 1) ]) (Canonical.Literal (Int 2))
+                  , Err (Error.TypeMismatch (Type.List <| Type.Var 4) Type.Int)-- Probably we want a better way of testing polymorphic types (instead of specifying an Int like Var 4)
                   )
-                ]
-              )
-            , ( "tuple3"
-              , [ ( "same types"
-                  , Canonical.Tuple3
-                        (Canonical.Literal (String "FP"))
-                        (Canonical.Literal (String "is"))
-                        (Canonical.Literal (String "good"))
-                  , Ok
-                        ( Typed.Tuple3
-                            ( Typed.Literal (String "FP"), Type.String )
-                            ( Typed.Literal (String "is"), Type.String )
-                            ( Typed.Literal (String "good"), Type.String )
-                        , Type.Tuple3 Type.String Type.String Type.String
-                        )
-                  )
-                , ( "different types"
-                  , Canonical.Tuple3
-                        (Canonical.Literal (Bool True))
-                        (Canonical.Literal (Int 1))
-                        (Canonical.Literal (Char 'h'))
-                  , Ok
-                        ( Typed.Tuple3
-                            ( Typed.Literal (Bool True), Type.Bool )
-                            ( Typed.Literal (Int 1), Type.Int )
-                            ( Typed.Literal (Char 'h'), Type.Char )
-                        , Type.Tuple3 Type.Bool Type.Int Type.Char
-                        )
+                , ( "List Concat for lists with different types"
+                  , Canonical.ListConcat (Canonical.List [ Canonical.Literal (Int 1) ]) (Canonical.List [ Canonical.Literal (Bool False) ])
+                  , Err (Error.TypeMismatch Type.Int Type.Bool)
                   )
                 ]
               )
@@ -193,23 +151,6 @@ typeToString =
                         )
                     )
                 , "The types `(List a) -> b` and `(List b) -> a` don't match."
-                )
-            ]
-        , describe "tuples"
-            [ runTest
-                ( "tuple with two literals"
-                , Type.Tuple Type.Int Type.String
-                , "( Int, String )"
-                )
-            , runTest
-                ( "tuple with two params"
-                , Type.Tuple (Type.Var 0) (Type.Var 1)
-                , "( a, b )"
-                )
-            , runTest
-                ( "tuple with tree params"
-                , Type.Tuple3 (Type.Var 0) (Type.Var 1) (Type.Var 2)
-                , "( a, b, c )"
                 )
             ]
         ]

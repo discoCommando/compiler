@@ -45,6 +45,9 @@ emitExpr ( expr, _ ) =
         Plus e1 e2 ->
             "(" ++ emitExpr e1 ++ " + " ++ emitExpr e2 ++ ")"
 
+        ListConcat e1 e2 ->
+            "(" ++ emitExpr e1 ++ " ++ " ++ emitExpr e2 ++ ")"
+
         Lambda { argument, body } ->
             -- TODO are these parentheses needed?
             "((" ++ mangleVarName argument ++ ") => " ++ emitExpr body ++ ")"
@@ -73,12 +76,6 @@ emitExpr ( expr, _ ) =
 
         Unit ->
             """{type: "unit"}"""
-
-        Tuple e1 e2 ->
-            "[" ++ emitExpr e1 ++ "," ++ emitExpr e2 ++ "]"
-
-        Tuple3 e1 e2 e3 ->
-            "[" ++ emitExpr e1 ++ "," ++ emitExpr e2 ++ "," ++ emitExpr e3 ++ "]"
 
 
 emitTopLevelDeclaration : TopLevelDeclaration Backend.Expr -> String

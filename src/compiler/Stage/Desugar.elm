@@ -51,6 +51,9 @@ desugarExpr modules thisModule expr =
         Frontend.Plus e1 e2 ->
             desugarPlus recurse e1 e2
 
+        Frontend.ListConcat e1 e2 ->
+            desugarListConcat recurse e1 e2
+
         Frontend.Lambda { arguments, body } ->
             desugarLambda recurse arguments body
 
@@ -68,12 +71,6 @@ desugarExpr modules thisModule expr =
 
         Frontend.Unit ->
             desugarUnit
-
-        Frontend.Tuple e1 e2 ->
-            desugarTuple recurse e1 e2
-
-        Frontend.Tuple3 e1 e2 e3 ->
-            desugarTuple3 recurse e1 e2 e3
 
 
 
@@ -100,6 +97,13 @@ desugarArgument varName =
 desugarPlus : (Frontend.Expr -> Result DesugarError Canonical.Expr) -> Frontend.Expr -> Frontend.Expr -> Result DesugarError Canonical.Expr
 desugarPlus recurse e1 e2 =
     Result.map2 Canonical.Plus
+        (recurse e1)
+        (recurse e2)
+
+
+desugarListConcat : (Frontend.Expr -> Result DesugarError Canonical.Expr) -> Frontend.Expr -> Frontend.Expr -> Result DesugarError Canonical.Expr
+desugarListConcat recurse e1 e2 =
+    Result.map2 Canonical.ListConcat
         (recurse e1)
         (recurse e2)
 
@@ -165,21 +169,6 @@ desugarList recurse items =
 desugarUnit : Result DesugarError Canonical.Expr
 desugarUnit =
     Ok Canonical.Unit
-
-
-desugarTuple : (Frontend.Expr -> Result DesugarError Canonical.Expr) -> Frontend.Expr -> Frontend.Expr -> Result DesugarError Canonical.Expr
-desugarTuple recurse e1 e2 =
-    Result.map2 Canonical.Tuple
-        (recurse e1)
-        (recurse e2)
-
-
-desugarTuple3 : (Frontend.Expr -> Result DesugarError Canonical.Expr) -> Frontend.Expr -> Frontend.Expr -> Frontend.Expr -> Result DesugarError Canonical.Expr
-desugarTuple3 recurse e1 e2 e3 =
-    Result.map3 Canonical.Tuple3
-        (recurse e1)
-        (recurse e2)
-        (recurse e3)
 
 
 
